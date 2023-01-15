@@ -1,43 +1,49 @@
 package ru.yandex.practicum.catsgram.service;
 
 import lombok.Data;
+import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.catsgram.exceptions.InvalidEmailException;
 import ru.yandex.practicum.catsgram.exceptions.UserAlreadyExistException;
 import ru.yandex.practicum.catsgram.model.User;
 
+import java.util.HashMap;
 import java.util.HashSet;
-@Service
-@Data
-public class UserService {
-    private final HashSet<User> users;
+import java.util.Map;
 
-    public HashSet<User> findAll() {
+@Service
+public class UserService {
+    private final Map<String, User> users = new HashMap<>();
+
+    public Map<String, User> findAll() {
         return users;
     }
 
 
-    public User create(User user) throws UserAlreadyExistException, InvalidEmailException {
-        if (users.contains(user)) {
+    public ResponseEntity<User> create(User user) throws UserAlreadyExistException, InvalidEmailException {
+        if (users.containsValue(user)) {
             throw new UserAlreadyExistException();
         }
         if (user == null || !user.getEmail().contains("@")) {
             throw new InvalidEmailException();
         }
-        users.add(user);
-        return user;
+        users.put(user.getEmail(), user);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    public User update(User user) throws InvalidEmailException {
-        if (!user.getEmail().contains("@")) {
-            throw new InvalidEmailException();
+    public ResponseEntity<User> update(User user) {
+        if (users.containsKey(user.getEmail())) {
+            users.put(user.getEmail(), user);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
+    }
+
+    public User findUserByEmail(String email) {
+        if (users.containsKey(email)) {
+            return users.get(email);
         }
-        if (users.contains(user)) {
-            users.remove(user);
-            users.add(user);
-            return user;
-        }
-        users.add(user);
-        return user;
+        return null;
     }
 }
