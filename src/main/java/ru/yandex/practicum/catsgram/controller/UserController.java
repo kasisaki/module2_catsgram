@@ -6,12 +6,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.catsgram.exceptions.InvalidEmailException;
 import ru.yandex.practicum.catsgram.exceptions.UserAlreadyExistException;
+import ru.yandex.practicum.catsgram.exceptions.UserNotFoundException;
+import ru.yandex.practicum.catsgram.model.Post;
 import ru.yandex.practicum.catsgram.model.User;
 import ru.yandex.practicum.catsgram.service.UserService;
 
 import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -28,15 +31,30 @@ public class UserController {
         return userService.findAll();
     }
 
+    @GetMapping("/users/{userEmail}")
+    @ResponseBody
+    public ResponseEntity<User> findById(@PathVariable String userEmail) {
+        User user = userService.findUserByEmail(userEmail);
+        if (user == null) {
+            throw new UserNotFoundException(String.format("User %s not found", userEmail));
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
     @PostMapping
     @ResponseBody
     public ResponseEntity<User> create(@RequestBody User user) throws UserAlreadyExistException, InvalidEmailException {
-        return userService.create(user);
+        if (userService.create(user) == null) {
+            return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
+        } else return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PutMapping
     @ResponseBody
     public ResponseEntity<User> update(@Valid @RequestBody User user) {
-        return userService.update(user);
+        if (userService.update(user) == null) {
+            return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }

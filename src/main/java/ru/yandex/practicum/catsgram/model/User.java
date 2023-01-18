@@ -1,9 +1,15 @@
 package ru.yandex.practicum.catsgram.model;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.stereotype.Component;
+
 import javax.validation.constraints.Email;
 import java.time.LocalDate;
 import java.util.Objects;
 
+@Getter
+@Setter
 public class User {
     @Email
     private String email;
@@ -27,30 +33,6 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(email);
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public LocalDate getBirthdate() {
-        return birthdate;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void setBirthdate(LocalDate birthdate) {
-        this.birthdate = birthdate;
     }
 
     @Override

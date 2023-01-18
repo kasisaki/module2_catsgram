@@ -21,8 +21,11 @@ public class UserService {
         return users;
     }
 
+    public User findUserByEmail(String email) {
+        return users.get(email);
+    }
 
-    public ResponseEntity<User> create(User user) throws UserAlreadyExistException, InvalidEmailException {
+    public User create(User user) throws UserAlreadyExistException, InvalidEmailException {
         if (users.containsValue(user)) {
             throw new UserAlreadyExistException();
         }
@@ -30,20 +33,13 @@ public class UserService {
             throw new InvalidEmailException();
         }
         users.put(user.getEmail(), user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return user;
     }
 
-    public ResponseEntity<User> update(User user) {
+    public User update(User user) {
         if (users.containsKey(user.getEmail())) {
             users.put(user.getEmail(), user);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } else return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
-    }
-
-    public User findUserByEmail(String email) {
-        if (users.containsKey(email)) {
-            return users.get(email);
-        }
-        return null;
+            return user;
+        } else return null;
     }
 }
